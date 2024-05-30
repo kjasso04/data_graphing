@@ -1,0 +1,12 @@
+,,,,Water,,,Hexanes,,,
+,,Shrinkage (%),,,Swelling (%),,,Swelling (%),,
+Sample,Shrinkage (%),Average,Standard Deviation,Swelling (%),Average,Standard Deviation,Swelling (%),Average,Standard Deviation,Gel Fraction (%)
+SORM1_r1,10.67,11,2.849368351,9.18,7.87,1.469194791,1.88,0.4275,1.553284826,117.53
+SORM1_r2,8.33,,,6.28,,,0.6125,,,N.A.
+SORM1_r3,14,,,8.14,,,-1.21,,,N.A.
+SORM2_r1,12.5,11.33,1.478929793,8.65,8.77,0.388372673,0.76,0.5293,0.222506929,114.31
+SORM2_r2,11.83,,,9.2,,,0.316,,,N.A.
+SORM2_r3,9.67,,,8.45,,,0.512,,,N.A.
+SORM3_r1,14.83,11.11,3.307763595,12.16,10.95,1.377037884,0.414,0.895,0.424859192,106.001
+SORM3_r2,8.5,,,9.45,,,1.05,,,N.A.
+SORM3_r3,10,,,11.23,,,1.22,,,N.A.

@@ -1,0 +1,12 @@
+,,,,Water,,,Hexanes,,,
+,,Shrinkage (%),,,Swelling (%),,,Swelling (%),,
+Sample,Shrinkage (%),Average,Standard Deviation,Swelling (%),Average,Standard Deviation,Swelling (%),Average,Standard Deviation,Gel Fraction (%)
+NAS-1T1,25.67,24.17,4.221990052,2.49,2.236666667,1.269107298,3.76,2.593333333,1.140935289,121
+NAS-1T2,27.33,,,3.36,,,1.48,,,N.A.
+NAS-1T3,19.33,,,0.86,,,2.54,,,N.A.
+NAS-2T1,,,,,,,,,,
+NAS-2T2,,,,,,,,,,N.A.
+NAS-2T3,,,,,,,,,,N.A.
+NAS-3T1,7.71,2.5,5.279908459,0.604,0.465666667,0.13653693,0.141,0.670666667,0.598540169,108
+NAS-3T2,3,,,0.331,,,0.551,,,N.A.
+NAS-3T3,-2.83,,,0.462,,,1.32,,,N.A.

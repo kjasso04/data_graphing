@@ -1,0 +1,13 @@
+,Formulation,,,,,,,Water Swelling,,Hexanes Swelling,,Gel Fraction,
+Sample,Monomer 1,Monomer 2,M2 mol%,Crosslinker,Crosslinker mol%,Photoinitiator,Height (mm),Mass-dry (mg),Mass-swollen (mg),Mass-dry (mg),Mass-swollen (mg),Mass - Initial (mg),Mass - final (mg)
+SORM1_r1,HEA,DMA,60,DiaAc,20,BAPO,5.36,422.7,461.5,424.8,432.8,821.6,965.6
+SORM1_r2,HEA,DMA,60,DiaAc,20,BAPO,5.5,425,451.7,424.5,427.1,N.A.,N.A.
+SORM1_r3,HEA,DMA,60,DiaAc,20,BAPO,5.16,420.3,454.5,431.2,426,N.A.,N.A.
+SORM2_r1,HEA,DMA,80,DiaAc,20,BAPO,5.25,405.6,440.7,407.9,411,834.1,953.5
+SORM2_r2,HEA,DMA,80,DiaAc,20,BAPO,5.29,412,449.9,411.3,412.6,N.A.,N.A.
+SORM2_r3,HEA,DMA,80,DiaAc,20,BAPO,5.42,414,449,410.3,412.4,N.A.,N.A.
+SORM3_r1,HEA,DMA,100,DiaAc,20,BAPO,5.11,406.4,455.8,411,412.7,861.4,913.1
+SORM3_r2,HEA,DMA,100,DiaAc,20,BAPO,5.49,412.5,451.5,410.1,414.4,N.A.,N.A.
+SORM3_r3,HEA,DMA,100,DiaAc,20,BAPO,5.4,404.2,449.6,408.4,413.4,N.A.,N.A.
+,,,,,,,,,,,,,
+,,,,,,,"*used same beaker for SORM1, SORM2, SORM3, but were very careful in placement ",,,,,,

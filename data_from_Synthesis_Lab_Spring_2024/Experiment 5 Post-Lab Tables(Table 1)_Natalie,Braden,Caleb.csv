@@ -1,0 +1,11 @@
+,Formulation,,,,,,,Water Swelling,,Hexanes Swelling,,Gel Fraction,
+Sample,Monomer 1,Monomer 2,M2 mol%,Crosslinker,Crosslinker mol%,Photoinitiator,Height (mm),Mass-dry (mg),Mass-swollen (mg),Mass-dry (mg),Mass-swollen (mg),Mass - Initial (mg),Mass - final (mg)
+NAS-1T1,n-Bu Acrylate,N/A,,Diacrylate,20,TPO,4.46,362,371,346,359,791.1,960
+NAS-1T2,n-Bu Acrylate,N/A,,Diacrylate,20,TPO,4.36,327,338,338,343,N.A.,N.A.
+NAS-1T3,n-Bu Acrylate,N/A,,Diacrylate,20,TPO,4.84,349,352,352,363,N.A.,N.A.
+NAS-2T1,n-Bu Acrylate,N/A,,Dimethacrylate,20,TPO,,,,,,,
+NAS-2T2,n-Bu Acrylate,N/A,,Dimethacrylate,20,TPO,,,,,,N.A.,N.A.
+NAS-2T3,n-Bu Acrylate,N/A,,Dimethacrylate,20,TPO,,,,,,N.A.,N.A.
+NAS-3T1,n-Bu Acrylate,N/A,,Triacrylate,20,TPO,5.57,380.7,383,425.4,426,839,910
+NAS-3T2,n-Bu Acrylate,N/A,,Triacrylate,20,TPO,5.82,391.7,393,435.6,438,N.A.,N.A.
+NAS-3T3,n-Bu Acrylate,N/A,,Triacrylate,20,TPO,6.17,389.2,391,417,422.5,N.A.,N.A.
