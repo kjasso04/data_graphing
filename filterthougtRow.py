@@ -2,8 +2,8 @@ import os
 import pandas as pd
 
 labResLocation = "./data_from_Synthesis_Lab_Spring_2024"
-outputLocation = "./test_filtered_data.xlsx"
-mappedoutputLocation = "./filtered_data.xlsx"
+outputLocation = "./rowFilter.xlsx"
+mappedoutputLocation = "./legendRowMapping.xlsx"
 wantedColumns = {"sample", "monomer1", "monomer2", "crosslinkermol"}
 
 # A class that allow for the collection of info that then get mapped to a number
