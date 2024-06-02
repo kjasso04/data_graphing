@@ -51,25 +51,43 @@ def checkforNulls(hash):
     return all(valueArray[2] for valueArray in hash.values())
 
 def scanWantedCol(dicData, maxRow, df, dataTupple):
+    
+    # the varable that causes to look at the next row
     incremenat = 0 
+    
+    #the loop that gose down every row in the exle file starting from the wanted cell
     while (maxRow + incremenat) < df.shape[0]:
+        
+        #the data that is collocted which will later be graphed
         collectedData = []
+        
+        #this is the bool that is used to cheack if all the need information is found
         validCollection = True
+        
         for name, hashInfo in dataTupple.items():
+            
+            #info is the value collected in the cell
             info = df.iat[int(hashInfo[0]) + incremenat, int(hashInfo[1])]
+            
+            #this cheacks that this is a not a null and not a null
             if validCollection and not pd.isna(info) and checkvarables(name, info):
+                
+                #adds that info the arraylist
                 collectedData.append(info)
             else:
+                #this is used so we know that this is not a valid input for are graph
                 validCollection = False
+        
+        #adds the info the hashset
         if validCollection:
             dicData["sample"].append(collectedData[0])
             dicData["monomer1"].append(collectedData[1])
             dicData["monomer2"].append(collectedData[2])
             dicData["crosslinkermol"].append(collectedData[3])
-            mon1Maping.add(collectedData[1])
-            mon2eMaping.add(collectedData[2])
-            dicData["mappedmonomer1"].append(mon1Maping.index_of(collectedData[1]))
-            dicData["mappedmonomer2"].append(mon2eMaping.index_of(collectedData[2]))
+            monMaping.add(collectedData[1])
+            monMaping.add(collectedData[2])
+            dicData["mappedmonomer1"].append(monMaping.index_of(collectedData[1]))
+            dicData["mappedmonomer2"].append(monMaping.index_of(collectedData[2]))
         incremenat += 1
 
 # Finds the Columns of the wanted information
@@ -88,8 +106,12 @@ def findWantedCollom(dicData, dicDateinfo, df):
                 scanWantedCol(dicData, maxRow, df, dicDateinfo)
                 return
 
-mon1Maping = HashSetWithIndex("mon1Maping")
-mon2eMaping = HashSetWithIndex("mon2eMaping")
+
+#________ the main _________
+
+monVarableSet = set
+monMaping = HashSetWithIndex("monMaping")
+
 
 # Loops through all the information in the dataset 
 for file in os.listdir(labResLocation):
@@ -144,7 +166,7 @@ for file in os.listdir(labResLocation):
         print(f"Error writing to {outputLocation}: {e}")
         
 # Output for the mapped data for the legend
-collectedData = {**mon1Maping.getDic(), **mon2eMaping.getDic()}
+collectedData = {**monMaping.getDic(), **monMaping.getDic()}
 for key, value in collectedData.items():
     print(f"{key}: {value}")
 
