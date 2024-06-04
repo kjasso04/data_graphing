@@ -1,32 +1,27 @@
 import os
 import pandas as pd
 
-# Set the file locations
 labResLocation = "./data_from_Synthesis_Lab_Spring_2024"
 outputLocation = "./rowFilter.csv"
 mappedoutputLocation = "./legendRowMapping.csv"
 wantedColumns = {"sample", "monomer1", "monomer2", "crosslinkermol"}
 
-# A class that allows for the collection of info that then gets mapped to a number
+# A class that allows for the collection of info that then get mapped to a number
 class HashSetWithIndex:
     def __init__(self, name: str):
-        """Initialize the HashSetWithIndex with a name, an element map, and a set for unique elements."""
         self.name = name
         self.elementMap = {}
         self.elementSet = set()
 
     def add(self, elem):
-        """Add a unique element to the set and map it to an index."""
         if elem not in self.elementSet:
             self.elementSet.add(elem)
-            self.elementMap[elem] = len(self.elementSet) - 1  # Use len(set) - 1 to start from 0
+            self.elementMap[elem] = len(self.elementSet)
 
     def index_of(self, elem):
-        """Return the index of the element if it exists, otherwise return -1."""
         return self.elementMap.get(elem, -1)
 
-    def get_dictionary(self):
-        """Return a dictionary with the element names and their corresponding indices."""
+    def getDic(self):
         collectionData = {
             (self.name + " collName"): [],
             (self.name + " mapping"): []
@@ -35,35 +30,58 @@ class HashSetWithIndex:
             collectionData[(self.name + " collName")].append(name)
             collectionData[(self.name + " mapping")].append(index)
         return collectionData
+    
+    
+#getting input
 
 # Remove special characters and turn string to lowercase 
 def remSpecialCharacter(colName):
-    return ''.join(letter.lower() for letter in colName if letter.isalnum())
+    newName = ''
+    for letter in colName:
+        if letter.isalnum():
+            newName += letter.lower()
+    return newName
 
 # Checks if the input for data is the valid type and not null
 def checkvarables(key, append):
-    if key in {"sample", "monomer1", "monomer2"}:
-        return isinstance(append, str) and append.lower() not in ["-", "none"] and append is not None
+    if key == "sample" or key == "monomer1" or key == "monomer2":
+        return isinstance(append, str) and append.lower() not in ["-", "none"]
     elif key == "crosslinkermol":
-        return isinstance(append, (int, float)) and append is not None
-
+        return isinstance(append, (int, float))
+    
 # Makes sure that there's input for all information provided
 def checkforNulls(hash):
     return all(valueArray[2] for valueArray in hash.values())
 
 def scanWantedCol(dicData, maxRow, df, dataTupple):
-    incremenat = 0  # The variable that causes to look at the next row
+    
+    # The variable that causes to look at the next row
+    incremenat = 0 
+    
+    # The loop that goes down every row in the excel file starting from the wanted cell
     while (maxRow + incremenat) < df.shape[0]:
-        collectedData = []  # The data that is collected which will later be graphed
-        validCollection = True  # This is the bool that is used to check if all the needed information is found
+        
+        # The data that is collected which will later be graphed
+        collectedData = []
+        
+        # This is the bool that is used to check if all the needed information is found
+        validCollection = True
         
         for name, hashInfo in dataTupple.items():
+            
+            # Info is the value collected in the cell
             info = df.iat[int(hashInfo[0]) + incremenat, int(hashInfo[1])]
-            if validCollection and checkvarables(name, info):
+            
+            # This checks that this is not null and not a null
+            if validCollection and not pd.isna(info) and checkvarables(name, info):
+                
+                # Adds that info to the arraylist
                 collectedData.append(info)
             else:
+                # This is used so we know that this is not a valid input for our graph
                 validCollection = False
         
+        # Adds the info to the hashset
         if validCollection:
             dicData["sample"].append(collectedData[0])
             dicData["monomer1"].append(collectedData[1])
@@ -75,23 +93,30 @@ def scanWantedCol(dicData, maxRow, df, dataTupple):
             dicData["mappedmonomer2"].append(monMaping.index_of(collectedData[2]))
         incremenat += 1
 
+# Finds the Columns of the wanted information
 def findWantedCollom(dicData, dicDateinfo, df):
     maxRow = 0
     for rowindex, rowName in df.iterrows():
         for colIndex, colName in enumerate(df.columns):
             if not checkforNulls(dicDateinfo):
                 if not pd.isna(df.iat[rowindex, colIndex]) and isinstance(rowName[colName], str) and remSpecialCharacter(rowName[colName]) in wantedColumns:
-                    dicDateinfo[remSpecialCharacter(rowName[colName])][:2] = [rowindex, colIndex]
+                    dicDateinfo[remSpecialCharacter(rowName[colName])][0] = rowindex
+                    dicDateinfo[remSpecialCharacter(rowName[colName])][1] = colIndex
                     dicDateinfo[remSpecialCharacter(rowName[colName])][2] = True
-                    maxRow = max(maxRow, rowindex)
+                    if maxRow < rowindex:
+                        maxRow = rowindex
             else:
                 scanWantedCol(dicData, maxRow, df, dicDateinfo)
                 return
 
-# The main function
 
+#________ the main _________
+
+monVarableSet = set
 monMaping = HashSetWithIndex("monMaping")
 
+
+# Loops through all the information in the dataset 
 for file in os.listdir(labResLocation):
     file_path = os.path.join(labResLocation, file)
     if os.path.isfile(file_path) and file_path.endswith(('.xls', '.xlsx', '.csv')) and not file.startswith('~$'):
@@ -125,11 +150,13 @@ for file in os.listdir(labResLocation):
         print(f"Overlooking {file} due to invalid file.")
         continue
     
+    # Makes sure that all the collected information has the same length
     lengths = [len(colValueCol[col]) for col in wantedColumns]
     if len(set(lengths)) != 1:
         print(f"Skipping {file} due to inconsistent data lengths.")
         continue
     
+    # Output of the collected information
     new_data_df = pd.DataFrame(colValueCol)
     try:
         if os.path.exists(outputLocation):
@@ -143,9 +170,11 @@ for file in os.listdir(labResLocation):
         updated_df.to_csv(outputLocation, index=False)
     except Exception as e:
         print(f"Error writing to {outputLocation}: {e}")
-
-collectedData = monMaping.get_dictionary()
-
+        
+# Output for the mapped data for the legend
+collectedData = {**monMaping.getDic()}
+#for key, value in collectedData.items():
+#    print(f"{key}: {value}")
 
 try:
     new_data_df = pd.DataFrame(collectedData)
@@ -161,8 +190,4 @@ try:
 except Exception as e:
     print(f"Error writing to {mappedoutputLocation}: {e}")
 
-
-
-print("collectedData")
-print(collectedData)
 print("Data added successfully.")
