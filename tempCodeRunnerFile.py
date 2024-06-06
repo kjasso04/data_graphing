@@ -1,1 +1,1 @@
-collectedData
+remSpecialCharacter
