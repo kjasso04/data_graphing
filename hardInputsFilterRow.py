@@ -40,10 +40,22 @@ class HashSetWithIndex:
 # Input Class
 class InputClass:
     def __init__(self):
-        self.wantedColumns = set()
-        self.wantedTypeDic = {}
-        self.collectionDic = {}
-        self.wantedOrdedList = []
+        self.wantedColumns = set(["sample", "monomer1", "monomer2", "crosslinkermol"])
+        self.wantedTypeDic = {
+            "sample": str,
+            "monomer1": str,
+            "monomer2": str,
+            "crosslinkermol": (int, float)
+            
+        }
+        self.collectionDic = {
+            "sample": [],
+            "monomer1": [],
+            "monomer2": [],
+            "crosslinkermol": [],
+            "monomer1mapped": [],
+            "monomer2mapped": []
+        }
         self.mappingHash = HashSetWithIndex("mapping")
         
     def collectUserInputs(self):
@@ -62,7 +74,6 @@ class InputClass:
             
     def establishVariables(self, userInput, types):
         self.wantedColumns.add(userInput)
-        self.wantedOrdedList.append(userInput)
         self.wantedTypeDic[userInput] = types
         self.collectionDic[userInput] = []
         
@@ -78,9 +89,6 @@ class InputClass:
     def getWantSet(self):
         return self.wantedColumns
     
-    def getOrderArray(self):
-        return self.wantedOrdedList
-    
     def getWantTypes(self):
         return self.wantedTypeDic
     
@@ -90,7 +98,7 @@ class InputClass:
         return self.mappingHash.getDataSet()
         
 
-# Getting input
+
 usersWants = InputClass()
 
 
@@ -161,7 +169,7 @@ def findWantedColumn( dicDateinfo, df):
 # ______ main _______
 
 #gets the users wants
-usersWants.collectUserInputs()
+#usersWants.collectUserInputs()
 
 
 
@@ -192,21 +200,10 @@ for file in os.listdir(labResLocation):
     
     # Output of the collected information
     
-    
-    
-print("getCollectedData")
+''''''''''
 for key, value in usersWants.getCollectedData().items():
     print(key + ": " + str(value))
-
-print("getWantTypes")
-for key, value in usersWants.getWantTypes().items():
-    print(key + ": " + str(value))
-
-print("getWantSet")
-print(usersWants.getWantSet())
-
-
-
+'''''''''''
 new_data_df = pd.DataFrame(usersWants.getCollectedData())
 try:
     if os.path.exists(outputLocation):

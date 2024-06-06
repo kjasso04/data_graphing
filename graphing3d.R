@@ -54,7 +54,7 @@ string_to_color <- function(take) {
 
 
 color_values <- sapply(name, string_to_color)
-color_values <- color_values[complete_cases]
+color_values <- na.omit(color_values[complete_cases])
 
 #assign rgb
 red <- (color_values %% 255)/255

@@ -1,4 +1,14 @@
 mapping collName,mapping assined
+dma,0
+hea,1
+nbuacrylate,2
+nbumethacrylate,3
+hema,4
+nbutylacetate,5
+iba,6
+nbu,7
+nbutylmethacrylate,8
+nbutylacrylate,9
 hea,0
 dma,1
 nbuacrylate,2
