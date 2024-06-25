@@ -1,11 +1,11 @@
 mapping collName,mapping assined
-hea,0
-dma,1
-nbuacrylate,2
-hema,3
-nbumethacrylate,4
-nbutylacetate,5
-iba,6
-nbu,7
-nbutylmethacrylate,8
-nbutylacrylate,9
+hea,0.0
+dma,1.0
+nbuacrylate,2.0
+hema,3.0
+nbumethacrylate,4.0
+nbutylacetate,5.0
+iba,6.0
+nbu,7.0
+nbutylmethacrylate,8.0
+nbutylacrylate,9.0
