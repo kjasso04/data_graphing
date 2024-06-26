@@ -1,11 +1,9 @@
-mapping collName,mapping assined
-hea,0.0
-dma,1.0
-nbuacrylate,2.0
-hema,3.0
-nbumethacrylate,4.0
-nbutylacetate,5.0
-iba,6.0
-nbu,7.0
-nbutylmethacrylate,8.0
-nbutylacrylate,9.0
+sample,monomer1,monomer2,crosslinkermol,monomer1mapped,monomer2mapped,rswell,sswell,mapping collName,mapping assined
+,,,,,,,,hea,0
+,,,,,,,,dma,1
+,,,,,,,,nbuacrylate,2
+,,,,,,,,nbutylacetate,3
+,,,,,,,,iba,4
+,,,,,,,,hema,5
+,,,,,,,,nbutylacrylate,6
+,,,,,,,,nbu,7

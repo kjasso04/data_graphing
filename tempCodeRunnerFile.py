@@ -40,14 +40,14 @@ class HashSetWithIndex:
 # Input Class
 class InputClass:
     def __init__(self):
-        self.wantedColumns = set(["sample", "monomer1", "monomer2", "crosslinkermol","rswelling", "sswelling"])
+        self.wantedColumns = set(["sample", "monomer1", "monomer2", "crosslinkermol","rswell", "sswell"])
         self.wantedTypeDic = {
             "sample": str,
             "monomer1": str,
             "monomer2": str,
             "crosslinkermol": (int, float),
-            "rswelling": (int, float),
-            "sswelling": (int, float)
+            "rswell": (int, float),
+            "sswell": (int, float)
             
         }
         self.collectionDic = {
@@ -57,8 +57,8 @@ class InputClass:
             "crosslinkermol": [],
             "monomer1mapped": [],
             "monomer2mapped": [],
-            "rswelling": [],
-            "sswelling":[]
+            "rswell": [],
+            "sswell":[]
         }
         self.mappingHash = HashSetWithIndex("mapping")
     ''''''''''
@@ -106,29 +106,47 @@ class InputClass:
 usersWants = InputClass()
 
 
+###########
+
 def contains(input, findWord, errorRange):
-    trig = {findWord[x] for x in range(errorRange)}
-    #print("jkjkljl")
+    trig = set()
+    
+    #print("input "+str(input) + " findword " + findWord )
+    for x in range(errorRange):
+        trig.add(findWord[x])
+    
+    #print(trig)
+    #print( )
+    
     for i in range(len(input) - len(findWord) + 1):
-        #print("blbl")
+        
         errors = 0
         findWordsIndex = 0
         inputIndex = i
         
         if input[i] in trig:
+            #print("trigger")
+            #print( )
             while findWordsIndex < len(findWord) and inputIndex < len(input) and errors <= errorRange:
+                
+                #print("findWordsIndex "+ str(findWord[findWordsIndex]) )
+                #print("inputIndex " +  str(input[inputIndex]))
+                
                 if findWord[findWordsIndex] != input[inputIndex]:
                     errors += 1
                 findWordsIndex += 1
                 inputIndex += 1
+                #print("errors " + str(errors))
+                #print("--------")
+                
             
             if findWordsIndex == len(findWord) and errors <= errorRange:
-                 return (True, findWord)
+                #print("found")
+                return (True, findWord)
                 
     return (False, findWord)
 
-        
-            
+#############      
             
         
     
@@ -142,78 +160,133 @@ def contains(input, findWord, errorRange):
 
 # Checks if the input for data is the valid type and not null
 def checkVariables(key, append):
-    if usersWants.getWantTypes()[key] == str:
-        return isinstance(append, str) and append.lower() not in ["-", "none", key.lower()]
-    elif usersWants.getWantTypes()[key] == (int, float):
-        return isinstance(append, (int, float))
-    return False
+    try:
+        if usersWants.getWantTypes()[key] == str:
+            return isinstance(append, str) and append.lower() not in ["-", "none", key.lower()]
+        elif usersWants.getWantTypes()[key] == (int, float):
+            return isinstance(append, (int, float)) and not pd.isna(append)
+        return False
+    except Exception as e:
+        return False
+
+    
+        
+    
+
     
 # Makes sure that there's input for all information provided
 def checkForNulls(hash):
     return all(valueArray[2] for valueArray in hash.values())
 
-def scanWantedCol( maxRow, df, dataTupple):
-    # The variable that causes to look at the next row
-    increment = 1 
+def scanWantedCol(maxRow, df, dataTupple):
+    increment = 1
     
-    # The loop that goes down every row in the excel file starting from the wanted cell
     while (maxRow + increment) < df.shape[0]:
-        
-        # The data that is collected which will later be graphed
         collectedData = []
-        
-        # This is the bool that is used to check if all the needed information is found
         validCollection = True
         
         for name, hashInfo in dataTupple.items():
-            # Info is the value collected in the cell
-            info = df.iat[int(hashInfo[0]) + increment, int(hashInfo[1])]
+            #print(hashInfo)
+            row_index = int(hashInfo[0]) + increment
+            col_index = int(hashInfo[1])
             
-            # This checks that this is not null and not a null
-            if validCollection and not pd.isna(info) and checkVariables(name, info):
-                # Adds that info to the arraylist
-                collectedData.append(info)
+            # Check if the cell is not NaN and passes the validity check
+            if pd.notna(df.iat[row_index, col_index]) and checkVariables(name, df.iat[row_index, col_index]):
+                collectedData.append(df.iat[row_index, col_index])
             else:
-                # This is used so we know that this is not a valid input for our graph
                 validCollection = False
+                break  # Exit the loop early if any invalid data is found
         
-        # Adds the info to the hashset
+        # If all data for this row is valid, add to usersWants
         if validCollection and len(collectedData) == len(usersWants.getWantSet()):
             index = 0 
             for name in dataTupple.keys():
-                usersWants.addInfo(name,collectedData[index])
+                usersWants.addInfo(name, collectedData[index])
                 index += 1
-
+        
         increment += 1
 
+
+
+
+##############
 # Finds the Columns of the wanted information
-def findWantedColumn( dicDateinfo, df):
+def findWantedColumn(dicDateinfo, df):
     maxRow = 0
-    #print("plee")
+    
     for rowindex, rowName in df.iterrows():
+        dicDateinfo = {wanted: [None, None, False] for wanted in usersWants.getWantSet()}
+        
         for colIndex, colName in enumerate(df.columns):
-            #print("hjkhlfc")
-            if not all(dicDateinfo[0] for dicDateinfo in dicDateinfo.values()):
-                #print("hjhyouvuyo")
-                dicKey = remSpecialCharacter(rowName[colName])
-                #print("raaaaaa")
-                (idk, key) = contains(dicKey, 'rswelling',  1)  
-                (TorF, fjdaksl) = contains(dicKey, 'sswelling',  1)
-                #print("funny")
-                if idk:
-                    dicKey = key
-                elif TorF:
-                    dicKey = fjdaksl
-                #print("goof")
-                if not pd.isna(df.iat[rowindex, colIndex]) and isinstance(rowName[colName], str) and (remSpecialCharacter(rowName[colName]) in usersWants.getWantSet() or TorF  or idk ) and checkVariables(dicKey, df.iat[ rowindex+1, colIndex] ):
-                    dicDateinfo[remSpecialCharacter(dicKey)]= [True, rowindex, colIndex]
+            if not all(dicDateinfo[wanted][2] for wanted in dicDateinfo):
+                if not pd.isna(df.iat[rowindex, colIndex]) and isinstance(rowName[colName], str):
+                    dicKey = remSpecialCharacter(rowName[colName])
+                    #print()
+                    #print(dicDateinfo)
+                    #print ( dicKey)
+                    #print(dicKey in usersWants.getWantSet())
                     
-                    if maxRow < rowindex:
-                        maxRow = rowindex
+                    #print( dicDateinfo["rswell"][2])
+                    #print( not dicDateinfo["rswell"][2])
+                    #print ( not dicDateinfo["sswell"][2])
+                    
+                    
+                    
+                    # Check if dicKey or its variations ('rswell', 'sswell') are in wanted columns
+                    if  ((contains(dicKey, "rswell", 2)[0]) and not dicDateinfo["rswell"][2]): 
+                        dicKey = "rswell"
+                        if checkVariables(dicKey, df.iat[rowindex+1, colIndex]):
+                            
+                            dicDateinfo[dicKey] = [rowindex, colIndex, True]
+                            if maxRow < rowindex:
+                                maxRow = rowindex         
+                    elif((contains(dicKey, "sswell", 2)[0]) and not dicDateinfo["sswell"][2]):
+                        dicKey = "sswell"
+                        if checkVariables(dicKey, df.iat[rowindex+1, colIndex]):
+                            dicDateinfo[dicKey] = [rowindex, colIndex, True]
+                            if maxRow < rowindex:
+                                maxRow = rowindex
+                    elif (dicKey in usersWants.getWantSet()):
+                        #print("raba")
+                        if checkVariables(dicKey, df.iat[rowindex+1, colIndex]):
+                            #print("crab")
+                            dicDateinfo[dicKey] = [rowindex, colIndex, True]
+                            if maxRow < rowindex:
+                                maxRow = rowindex
+                      
+                                
             else:
-                scanWantedCol( maxRow, df, dicDateinfo)
+                #print('All columns found in row:', rowindex)
+                scanWantedCol(maxRow, df, dicDateinfo)
                 return
             
+        # Output invalid rows if needed
+        '''''''''
+        collect = {key for key, value in dicDateinfo.items() if value[2] == False}
+        if collect:
+            print(f"Invalid row: {rowindex}, Missing columns: {collect}")
+        
+
+            
+
+    # Call scanWantedCol outside the loop to process collected data
+    
+
+    # Output invalid rows if needed
+    if not all(dicDateinfo[wanted][2] for wanted in dicDateinfo):
+        print(f"Invalid row: {rowindex}")
+    '''''''''
+
+    # Process the found columns
+    
+
+            
+    #print("invalide row" + str({key for key, value in dicDateinfo.items() if value[2] == False})) 
+            
+            #fullcollect = {key for key, value in dicDateinfo.items()}
+            #print("invalide row" + str(collect))
+            #collect = {dicDateinfo[2] == False for dicDateinfo in dicDateinfo.values()}
+###############    
 
 # ______ main _______/
 #gets the users wants
@@ -231,22 +304,22 @@ for file in os.listdir(labResLocation):
             else:
                 df = pd.read_excel(file_path, header=0, engine='openpyxl')
             
-            dataTupple = {wanted: [False] for wanted in usersWants.getWantSet()}
-            #print("jkjk")
-            findWantedColumn( dataTupple, df)
+            dataTupple = {wanted: [None, None, False] for wanted in usersWants.getWantSet()}
+            
+            findWantedColumn(dataTupple, df)
         except Exception as e:
-            print(f"Error reading  {file_path}: {e}")
+            print(f"Error reading {file_path}: {e}")
             continue
     else:
         print(f"Overlooking {file} due to invalid file.")
         continue
     
     # Makes sure that all the collected information has the same length
-    
     lengths = [len(usersWants.getCollectedData()[col]) for col in usersWants.getWantSet()]
     if len(set(lengths)) != 1:
         print(f"Skipping {file} due to inconsistent data lengths.")
         continue
+    
     
     # Output of the collected information
     

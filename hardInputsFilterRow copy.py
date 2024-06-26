@@ -111,7 +111,7 @@ usersWants = InputClass()
 def contains(input, findWord, errorRange):
     trig = set()
     
-    #print("input "+str(input) + " findword " + findWord )
+    print("input "+str(input) + " findword " + findWord )
     for x in range(errorRange):
         trig.add(findWord[x])
     
@@ -160,202 +160,110 @@ def contains(input, findWord, errorRange):
 
 # Checks if the input for data is the valid type and not null
 def checkVariables(key, append):
-    try:
-        if usersWants.getWantTypes()[key] == str:
-            return isinstance(append, str) and append.lower() not in ["-", "none", key.lower()]
-        elif usersWants.getWantTypes()[key] == (int, float):
-            return isinstance(append, (int, float)) and not pd.isna(append)
-        return False
-    except Exception as e:
-        return False
+    if usersWants.getWantTypes()[key] == str:
+        return isinstance(append, str) and append.lower() not in ["-", "none", key.lower()]
+    elif usersWants.getWantTypes()[key] == (int, float):
+        return isinstance(append, (int, float))
+    return False
 
-    
-        
-    
-
-    
 # Makes sure that there's input for all information provided
 def checkForNulls(hash):
     return all(valueArray[2] for valueArray in hash.values())
 
-def scanWantedCol(maxRow, df, dataTupple):
-    increment = 1
-    
+def scanWantedCol( maxRow, df, dataTupple):
+    # The variable that causes to look at the next row
+    increment = 1 
+    #print("jkjkljl")
+    # The loop that goes down every row in the excel file starting from the wanted cell
     while (maxRow + increment) < df.shape[0]:
+        
+        # The data that is collected which will later be graphed
         collectedData = []
+        
+        # This is the bool that is used to check if all the needed information is found
         validCollection = True
         
         for name, hashInfo in dataTupple.items():
-            #print(hashInfo)
-            row_index = int(hashInfo[0]) + increment
-            col_index = int(hashInfo[1])
+            # Info is the value collected in the cell
+            info = df.iat[int(hashInfo[0]) + increment, int(hashInfo[1])]
             
-            # Check if the cell is not NaN and passes the validity check
-            if pd.notna(df.iat[row_index, col_index]) and checkVariables(name, df.iat[row_index, col_index]):
-                collectedData.append(df.iat[row_index, col_index])
+            # This checks that this is not null and not a null
+            if validCollection and not pd.isna(info) and checkVariables(name, info):
+                # Adds that info to the arraylist
+                collectedData.append(info)
             else:
+                # This is used so we know that this is not a valid input for our graph
                 validCollection = False
-                break  # Exit the loop early if any invalid data is found
         
-        # If all data for this row is valid, add to usersWants
+        # Adds the info to the hashset
         if validCollection and len(collectedData) == len(usersWants.getWantSet()):
             index = 0 
             for name in dataTupple.keys():
-                usersWants.addInfo(name, collectedData[index])
+                usersWants.addInfo(name,collectedData[index])
                 index += 1
-        
-        increment += 1
 
+        increment += 1
 
 
 
 ##############
 # Finds the Columns of the wanted information
-def findWantedColumn(dicDateinfo, df):
+def findWantedColumn( dicDateinfo, df):
     maxRow = 0
-    
+    #print("plee")
+    baseDic = dicDateinfo
     for rowindex, rowName in df.iterrows():
         dicDateinfo = {wanted: [None, None, False] for wanted in usersWants.getWantSet()}
-        
+        print(rowName)
         for colIndex, colName in enumerate(df.columns):
-            if not all(dicDateinfo[wanted][2] for wanted in dicDateinfo):
-                if not pd.isna(df.iat[rowindex, colIndex]) and isinstance(rowName[colName], str):
+            #print("hjkhlfc")
+            if not all(dicDateinfo[2] for dicDateinfo in dicDateinfo.values()):
+                if not pd.isna(df.iat[rowindex, colIndex]) and isinstance(rowName[colName], str) :
+                #print("hjhyouvuyo")
                     dicKey = remSpecialCharacter(rowName[colName])
-                    #print()
-                    #print(dicDateinfo)
-                    #print ( dicKey)
-                    #print(dicKey in usersWants.getWantSet())
+                    #print(dicKey)
+                    (idk, key) = contains(dicKey, 'rswell',  2)  
+                    (TorF, fjdaksl) = contains(dicKey, 'sswell',  2)
+                        
                     
-                    #print( dicDateinfo["rswell"][2])
-                    #print( not dicDateinfo["rswell"][2])
-                    #print ( not dicDateinfo["sswell"][2])
-                    
-                    
-                    
-                    # Check if dicKey or its variations ('rswell', 'sswell') are in wanted columns
-                    if  ((contains(dicKey, "rswell", 2)[0]) and not dicDateinfo["rswell"][2]): 
-                        dicKey = "rswell"
-                        if checkVariables(dicKey, df.iat[rowindex+1, colIndex]):
-                            
-                            dicDateinfo[dicKey] = [rowindex, colIndex, True]
-                            if maxRow < rowindex:
-                                maxRow = rowindex         
-                    elif((contains(dicKey, "sswell", 2)[0]) and not dicDateinfo["sswell"][2]):
-                        dicKey = "sswell"
-                        if checkVariables(dicKey, df.iat[rowindex+1, colIndex]):
-                            dicDateinfo[dicKey] = [rowindex, colIndex, True]
-                            if maxRow < rowindex:
-                                maxRow = rowindex
-                    elif (dicKey in usersWants.getWantSet()):
-                        #print("raba")
-                        if checkVariables(dicKey, df.iat[rowindex+1, colIndex]):
-                            #print("crab")
-                            dicDateinfo[dicKey] = [rowindex, colIndex, True]
-                            if maxRow < rowindex:
-                                maxRow = rowindex
-                      
-                                
+                    if idk:
+                        dicKey = key
+                        #print()
+                    elif TorF:
+                        dicKey = fjdaksl
+                        #print()
+                    #print("goof")
+                    #print("blbl")
+                   
+                    if (remSpecialCharacter(rowName[colName]) in usersWants.getWantSet() or TorF  or idk ) and checkVariables(dicKey, df.iat[ rowindex+1, colIndex] ):
+                        #print("fhgfghfhg")
+                        dicDateinfo[dicKey]= [ rowindex, colIndex,True]
+                        if maxRow < rowindex:
+                            maxRow = rowindex
+                    collect = {key for key, value in dicDateinfo.items() if value[2] == False}
+                    print("invalide row" + str(collect))       
             else:
-                #print('All columns found in row:', rowindex)
-                scanWantedCol(maxRow, df, dicDateinfo)
+                print('here')
+                scanWantedCol( maxRow, df, dicDateinfo)
                 return
-            
-        # Output invalid rows if needed
-        '''''''''
-        collect = {key for key, value in dicDateinfo.items() if value[2] == False}
-        if collect:
-            print(f"Invalid row: {rowindex}, Missing columns: {collect}")
-        
-
-            
-
-    # Call scanWantedCol outside the loop to process collected data
-    
-
-    # Output invalid rows if needed
-    if not all(dicDateinfo[wanted][2] for wanted in dicDateinfo):
-        print(f"Invalid row: {rowindex}")
-    '''''''''
-
-    # Process the found columns
-    
-
-            
-    #print("invalide row" + str({key for key, value in dicDateinfo.items() if value[2] == False})) 
             
             #fullcollect = {key for key, value in dicDateinfo.items()}
             #print("invalide row" + str(collect))
             #collect = {dicDateinfo[2] == False for dicDateinfo in dicDateinfo.values()}
 ###############    
 
-# ______ main _______/
+# ______ main _______/a
 #gets the users wants
 #usersWants.collectUserInputs()
 
 
 
 # Loops through all the information in the dataset 
-for file in os.listdir(labResLocation):
-    file_path = os.path.join(labResLocation, file)
-    if os.path.isfile(file_path) and file_path.endswith(('.xls', '.xlsx', '.csv')) and not file.startswith('~$'):
-        try:
-            if file_path.endswith('.csv'):
-                df = pd.read_csv(file_path, header=0)
-            else:
-                df = pd.read_excel(file_path, header=0, engine='openpyxl')
-            
-            dataTupple = {wanted: [None, None, False] for wanted in usersWants.getWantSet()}
-            
-            findWantedColumn(dataTupple, df)
-        except Exception as e:
-            print(f"Error reading {file_path}: {e}")
-            continue
-    else:
-        print(f"Overlooking {file} due to invalid file.")
-        continue
-    
-    # Makes sure that all the collected information has the same length
-    lengths = [len(usersWants.getCollectedData()[col]) for col in usersWants.getWantSet()]
-    if len(set(lengths)) != 1:
-        print(f"Skipping {file} due to inconsistent data lengths.")
-        continue
-    
-    
-    # Output of the collected information
-    
-''''''''''
-for key, value in usersWants.getCollectedData().items():
-    print(key + ": " + str(value))
-'''''''''''
-new_data_df = pd.DataFrame(usersWants.getCollectedData())
-try:
-    if os.path.exists(outputLocation):
-        if os.path.getsize(outputLocation) > 0:  # Check if file is not empty
-            existing_df = pd.read_csv(outputLocation, header=0)
-            updated_df = pd.concat([existing_df, new_data_df], ignore_index=True)
-        else:
-            updated_df = new_data_df
-    else:
-        updated_df = new_data_df
-    updated_df.to_csv(outputLocation, index=False)
-except Exception as e:
-    print(f"Error writing to {outputLocation}: {e}")
 
-# Output for the mapped data for the legend
-collectedData = {**usersWants.getMapDataSet()}
-
-try:
-    new_data_df = pd.DataFrame(collectedData)
-    if os.path.exists(mappedoutputLocation):
-        if os.path.getsize(mappedoutputLocation) > 0:  # Check if file is not empty
-            existing_df = pd.read_csv(mappedoutputLocation, header=0)
-            updated_df = pd.concat([existing_df, new_data_df], ignore_index=True)
-        else:
-            updated_df = new_data_df
-    else:
-        updated_df = new_data_df
-    updated_df.to_csv(mappedoutputLocation, index=False)
-except Exception as e:
-    print(f"Error writing to {mappedoutputLocation}: {e}")
-
-print("Data added successfully.")
+print(remSpecialCharacter("Mass-swollen"))
+print(remSpecialCharacter("Monomer 2"))
+print( "monomer2" == "monomer2")
+print(contains(remSpecialCharacter("swelliing"), 'rswell',  2))
+print(checkVariables("rswell", 1))
+print(isinstance(1, int))
+print(remSpecialCharacter("Crosslinker mol%"))
