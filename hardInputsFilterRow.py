@@ -6,6 +6,49 @@ outputLocation = "./rowFilter.csv"
 mappedoutputLocation = "./legendRowMapping.csv"
 
 
+###########
+
+def contains(input, findWord, errorRange):
+    trig = set()
+    
+    #print("input "+str(input) + " findword " + findWord )
+    for x in range(errorRange):
+        trig.add(findWord[x])
+    
+    #print(trig)
+    #print( )
+    
+    for i in range(len(input) - len(findWord) + 1):
+        
+        errors = 0
+        findWordsIndex = 0
+        inputIndex = i
+        
+        if input[i] in trig:
+            #print("trigger")
+            #print( )
+            while findWordsIndex < len(findWord) and inputIndex < len(input) and errors <= errorRange:
+                
+                #print("findWordsIndex "+ str(findWord[findWordsIndex]) )
+                #print("inputIndex " +  str(input[inputIndex]))
+                
+                if findWord[findWordsIndex] != input[inputIndex]:
+                    errors += 1
+                findWordsIndex += 1
+                inputIndex += 1
+                #print("errors " + str(errors))
+                #print("--------")
+                
+            
+            if findWordsIndex == len(findWord) and errors <= errorRange:
+                #print("found")
+                return (True, findWord)
+                
+    return (False, findWord)
+
+#############      
+
+
 # Remove special characters and turn string to lowercase 
 def remSpecialCharacter(colName):
     newName = ''.join([letter.lower() for letter in colName if letter.isalnum()])
@@ -26,7 +69,14 @@ class HashSetWithIndex:
 
     def indexOf(self, elem):
         return self.elementMap.get(remSpecialCharacter(elem), -1)
+    
+        
 
+            
+            
+            
+            
+    
     def getDataSet(self):
         collectionData = {
             (self.name + " collName"): [],
@@ -89,6 +139,40 @@ class InputClass:
                 self.collectionDic[key + "mapped"].append(self.mappingHash.indexOf(information))
             else:
                 self.collectionDic[key + "mapped"] = [self.mappingHash.indexOf(information)]
+    
+    def mostSimilar(self, listWords):
+        foundword = ""
+        
+        # Iterate over indices of the longest word in listWords
+        max_length = max(len(word) for word in listWords)
+        for index in range(max_length):
+            count = {}
+            
+            # Count occurrences of each character at position `index`
+            for word in listWords:
+                if index < len(word):
+                    letter = word[index]
+                    if letter in count:
+                        count[letter] += 1
+                    else:
+                        count[letter] = 1
+            
+            # Find the most occurred character at position `index`
+            max_occurred = ("", 1)
+            for letter, cnt in count.items():
+                if cnt > max_occurred[1]:
+                    max_occurred = (letter, cnt)
+            
+            # Append the most occurred letter to `foundword`
+            foundword += max_occurred[0]
+        #print(listWords)
+        #print(foundword)
+        
+        return foundword
+
+
+                
+            
         
     def getWantSet(self):
         return self.wantedColumns
@@ -98,55 +182,59 @@ class InputClass:
     
     def getCollectedData(self):
         return self.collectionDic
+    
+    def swellAvg(self, key):
+        #print("inbox")
+        #print(key in self.elementMap)
+        #print(self.elementMap)
+        #print(len(self.elementMap[key]) >= 3)
+        if key in self.wantedColumns and len(self.collectionDic[key]) >= 3:
+            #print("hi")
+            pointer = [0,1,2]
+            
+            
+            #print(len(self.elementMap[key]))
+            while max(pointer) < len(self.collectionDic[key]):
+                collData = list()
+                collPoz = list()
+                baseWord = self.mostSimilar([self.collectionDic["sample"][pointer[0]],
+                                             self.collectionDic["sample"][pointer[1]],
+                                             self.collectionDic["sample"][pointer[2]]
+                                             ])
+                
+                
+                for poz in pointer:
+                    if contains(self.collectionDic["sample"][poz],baseWord,1 )[0]:
+                        collData.append(self.collectionDic[key][poz])
+                        collPoz.append(poz)
+                        
+                '''''''''      
+                print("_______________")
+                print(baseWord)
+                if (baseWord == "NBBB1_r1"):
+                    print(pointer)
+                    print(collPoz)
+                    print(contains("KL1_1",baseWord,1 ))
+                print()
+                '''''
+                
+                if  collData != []:
+                    average = sum(collData) / len(collData)
+                    for index in collPoz:
+                        self.collectionDic[key][index] = average
+                        
+                for inc in range(len(collPoz)):
+                    pointer[inc] += len(pointer)
+                    
+        #print("return/2")
+        return self
+    
     def getMapDataSet(self):
         return self.mappingHash.getDataSet()
         
 
 
 usersWants = InputClass()
-
-
-###########
-
-def contains(input, findWord, errorRange):
-    trig = set()
-    
-    #print("input "+str(input) + " findword " + findWord )
-    for x in range(errorRange):
-        trig.add(findWord[x])
-    
-    #print(trig)
-    #print( )
-    
-    for i in range(len(input) - len(findWord) + 1):
-        
-        errors = 0
-        findWordsIndex = 0
-        inputIndex = i
-        
-        if input[i] in trig:
-            #print("trigger")
-            #print( )
-            while findWordsIndex < len(findWord) and inputIndex < len(input) and errors <= errorRange:
-                
-                #print("findWordsIndex "+ str(findWord[findWordsIndex]) )
-                #print("inputIndex " +  str(input[inputIndex]))
-                
-                if findWord[findWordsIndex] != input[inputIndex]:
-                    errors += 1
-                findWordsIndex += 1
-                inputIndex += 1
-                #print("errors " + str(errors))
-                #print("--------")
-                
-            
-            if findWordsIndex == len(findWord) and errors <= errorRange:
-                #print("found")
-                return (True, findWord)
-                
-    return (False, findWord)
-
-#############      
             
         
     
@@ -233,7 +321,7 @@ def findWantedColumn(dicDateinfo, df):
                     
                     
                     # Check if dicKey or its variations ('rswell', 'sswell') are in wanted columns
-                    if  ((contains(dicKey, "rswell", 2)[0]) and not dicDateinfo["rswell"][2]): 
+                    if  ((contains(dicKey, "rswell", 2)[0]) and (contains(dicKey, "rswell", 2)[0]) and not dicDateinfo["rswell"][2]): 
                         dicKey = "rswell"
                         if checkVariables(dicKey, df.iat[rowindex+1, colIndex]):
                             
@@ -305,7 +393,7 @@ for file in os.listdir(labResLocation):
                 df = pd.read_excel(file_path, header=0, engine='openpyxl')
             
             dataTupple = {wanted: [None, None, False] for wanted in usersWants.getWantSet()}
-            
+            #df = df.drop(df.index)
             findWantedColumn(dataTupple, df)
         except Exception as e:
             print(f"Error reading {file_path}: {e}")
@@ -327,7 +415,8 @@ for file in os.listdir(labResLocation):
 for key, value in usersWants.getCollectedData().items():
     print(key + ": " + str(value))
 '''''''''''
-new_data_df = pd.DataFrame(usersWants.getCollectedData())
+outputDf = usersWants.swellAvg("rswell").swellAvg("sswell")
+new_data_df = pd.DataFrame(outputDf.getCollectedData())
 try:
     if os.path.exists(outputLocation):
         if os.path.getsize(outputLocation) > 0:  # Check if file is not empty
@@ -342,7 +431,9 @@ except Exception as e:
     print(f"Error writing to {outputLocation}: {e}")
 
 # Output for the mapped data for the legend
-collectedData = {**usersWants.getMapDataSet()}
+#print("here")
+outputDf = usersWants.swellAvg("rswell").swellAvg("sswell")
+collectedData = {**outputDf.getCollectedData()}
 
 try:
     new_data_df = pd.DataFrame(collectedData)
