@@ -7,44 +7,44 @@ mappedoutputLocation = "./legendRowMapping.csv"
 
 
 ###########
-
 def contains(input, findWord, errorRange):
-    trig = set()
-    
-    #print("input "+str(input) + " findword " + findWord )
-    for x in range(errorRange):
-        trig.add(findWord[x])
-    
-    #print(trig)
-    #print( )
+    output = ((False, False), findWord)
     
     for i in range(len(input) - len(findWord) + 1):
-        
         errors = 0
-        findWordsIndex = 0
-        inputIndex = i
+        match = True
         
-        if input[i] in trig:
-            #print("trigger")
-            #print( )
-            while findWordsIndex < len(findWord) and inputIndex < len(input) and errors <= errorRange:
-                
-                #print("findWordsIndex "+ str(findWord[findWordsIndex]) )
-                #print("inputIndex " +  str(input[inputIndex]))
-                
-                if findWord[findWordsIndex] != input[inputIndex]:
-                    errors += 1
-                findWordsIndex += 1
-                inputIndex += 1
-                #print("errors " + str(errors))
-                #print("--------")
-                
-            
-            if findWordsIndex == len(findWord) and errors <= errorRange:
-                #print("found")
-                return (True, findWord)
-                
-    return (False, findWord)
+        for j in range(len(findWord)):
+            if input[i + j] != findWord[j]:
+                errors += 1
+                if errors > errorRange:
+                    match = False
+                    break
+        
+        if match:
+            if errors == 0:
+                return ((True, True), findWord)
+            elif errors <= errorRange:
+                output = ((True, False), findWord)
+    
+    return output
+
+
+    '''''''''
+    print()
+    print(findWordsIndex)
+    print(len(findWord))
+    print(findWordsIndex < len(findWord))
+    print()
+    print(inputIndex)
+    print(len(input))
+    print(inputIndex < len(input) )
+    print()
+    print(errors)
+    print(errorRange)
+    print(errors <= errorRange)
+    '''''''''''      
+    
 
 #############      
 
@@ -204,7 +204,7 @@ class InputClass:
                 
                 
                 for poz in pointer:
-                    if contains(self.collectionDic["sample"][poz],baseWord,1 )[0]:
+                    if contains(self.collectionDic["sample"][poz],baseWord,1 )[0][0]:
                         collData.append(self.collectionDic[key][poz])
                         collPoz.append(poz)
                         
@@ -321,14 +321,15 @@ def findWantedColumn(dicDateinfo, df):
                     
                     
                     # Check if dicKey or its variations ('rswell', 'sswell') are in wanted columns
-                    if  ((contains(dicKey, "rswell", 2)[0]) and (contains(dicKey, "rswell", 2)[0]) and not dicDateinfo["rswell"][2]): 
+                    print()
+                    if  ((contains(dicKey, "rswell", 1)[0][0]) and (not (contains(dicKey, "sswell", 1)[0][1]) and not dicDateinfo["rswell"][2])): 
                         dicKey = "rswell"
                         if checkVariables(dicKey, df.iat[rowindex+1, colIndex]):
                             
                             dicDateinfo[dicKey] = [rowindex, colIndex, True]
                             if maxRow < rowindex:
                                 maxRow = rowindex         
-                    elif((contains(dicKey, "sswell", 2)[0]) and not dicDateinfo["sswell"][2]):
+                    elif((contains(dicKey, "sswell", 1)[0]) and not dicDateinfo["sswell"][2]):
                         dicKey = "sswell"
                         if checkVariables(dicKey, df.iat[rowindex+1, colIndex]):
                             dicDateinfo[dicKey] = [rowindex, colIndex, True]
@@ -381,72 +382,15 @@ def findWantedColumn(dicDateinfo, df):
 #usersWants.collectUserInputs()
 
 
+print(contains("hexanesswelling", "rswell", 1))
 
-# Loops through all the information in the dataset 
-for file in os.listdir(labResLocation):
-    file_path = os.path.join(labResLocation, file)
-    if os.path.isfile(file_path) and file_path.endswith(('.xls', '.xlsx', '.csv')) and not file.startswith('~$'):
-        try:
-            if file_path.endswith('.csv'):
-                df = pd.read_csv(file_path, header=0)
-            else:
-                df = pd.read_excel(file_path, header=0, engine='openpyxl')
-            
-            dataTupple = {wanted: [None, None, False] for wanted in usersWants.getWantSet()}
-            #df = df.drop(df.index)
-            findWantedColumn(dataTupple, df)
-        except Exception as e:
-            print(f"Error reading {file_path}: {e}")
-            continue
-    else:
-        print(f"Overlooking {file} due to invalid file.")
-        continue
-    
-    # Makes sure that all the collected information has the same length
-    lengths = [len(usersWants.getCollectedData()[col]) for col in usersWants.getWantSet()]
-    if len(set(lengths)) != 1:
-        print(f"Skipping {file} due to inconsistent data lengths.")
-        continue
-    
-    
-    # Output of the collected information
-    
-''''''''''
-for key, value in usersWants.getCollectedData().items():
-    print(key + ": " + str(value))
+'''''''''
+print((contains("masswollenmg", "osswoll", 1)))
+print((contains("massswollenmg", "saswoll", 1)))
+print((contains("massswollenmg", "sswaoll", 1)))
+print((contains("massswollenmg", "sswoall", 1)))
+print((contains("massswollenmg", "sswolal", 1)))
+print((contains("massswollenmg", "sswolla", 1)))
+print((contains("massswollenmg", "sswollaa", 1)))
+print((contains("massswollenmg", "sswollaaa", 1)))
 '''''''''''
-outputDf = usersWants.swellAvg("rswell").swellAvg("sswell")
-new_data_df = pd.DataFrame(outputDf.getCollectedData())
-try:
-    if os.path.exists(outputLocation):
-        if os.path.getsize(outputLocation) > 0:  # Check if file is not empty
-            existing_df = pd.read_csv(outputLocation, header=0)
-            updated_df = pd.concat([existing_df, new_data_df], ignore_index=True)
-        else:
-            updated_df = new_data_df
-    else:
-        updated_df = new_data_df
-    updated_df.to_csv(outputLocation, index=False)
-except Exception as e:
-    print(f"Error writing to {outputLocation}: {e}")
-
-# Output for the mapped data for the legend
-#print("here")
-outputDf = usersWants.swellAvg("rswell").swellAvg("sswell")
-collectedData = {**outputDf.getCollectedData()}
-
-try:
-    new_data_df = pd.DataFrame(collectedData)
-    if os.path.exists(mappedoutputLocation):
-        if os.path.getsize(mappedoutputLocation) > 0:  # Check if file is not empty
-            existing_df = pd.read_csv(mappedoutputLocation, header=0)
-            updated_df = pd.concat([existing_df, new_data_df], ignore_index=True)
-        else:
-            updated_df = new_data_df
-    else:
-        updated_df = new_data_df
-    updated_df.to_csv(mappedoutputLocation, index=False)
-except Exception as e:
-    print(f"Error writing to {mappedoutputLocation}: {e}")
-
-print("Data added successfully.")

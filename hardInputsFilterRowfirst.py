@@ -39,15 +39,12 @@ def contains(input, findWord, errorRange):
                 #print("errors " + str(errors))
                 #print("--------")
                 
-            if findWordsIndex == len(findWord) and errors == 0:
+            
+            if findWordsIndex == len(findWord) and errors <= errorRange:
                 #print("found")
-                return ((True,True), findWord)
+                return (True, findWord)
                 
-            elif findWordsIndex == len(findWord) and errors <= errorRange:
-                #print("found")
-                return ((True,False), findWord)
-                
-    return ((False,False), findWord)
+    return (False, findWord)
 
 #############      
 
@@ -207,7 +204,7 @@ class InputClass:
                 
                 
                 for poz in pointer:
-                    if contains(self.collectionDic["sample"][poz],baseWord,1 )[0][0]:
+                    if contains(self.collectionDic["sample"][poz],baseWord,1 )[0]:
                         collData.append(self.collectionDic[key][poz])
                         collPoz.append(poz)
                         
@@ -309,6 +306,7 @@ def findWantedColumn(dicDateinfo, df):
         dicDateinfo = {wanted: [None, None, False] for wanted in usersWants.getWantSet()}
         
         for colIndex, colName in enumerate(df.columns):
+            print([(wanted, dicDateinfo[wanted][2]) for wanted in dicDateinfo if not dicDateinfo[wanted][2]])
             if not all(dicDateinfo[wanted][2] for wanted in dicDateinfo):
                 if not pd.isna(df.iat[rowindex, colIndex]) and isinstance(rowName[colName], str):
                     dicKey = remSpecialCharacter(rowName[colName])
@@ -320,19 +318,21 @@ def findWantedColumn(dicDateinfo, df):
                     #print( dicDateinfo["rswell"][2])
                     #print( not dicDateinfo["rswell"][2])
                     #print ( not dicDateinfo["sswell"][2])
+                    """""if ((contains(dicKey, "rswell", 1)[0]) and (contains(dicKey, "rswell", 1)[0]) and not dicDateinfo["rswell"][2]) or (contains(dicKey, "sswell", 1)[0]) and not dicDateinfo["sswell"][2]:
+                        print((contains(dicKey, "rswell", 1)[0]) and (contains(dicKey, "rswell", 1)[0]) and not dicDateinfo["rswell"][2])
+                        print((contains(dicKey, "sswell", 1)[0]) and not dicDateinfo["sswell"][2])
                     
-                    
+                    """""
                     
                     # Check if dicKey or its variations ('rswell', 'sswell') are in wanted columns
-                    print()
-                    if  ((contains(dicKey, "rswell", 1)[0][0]) and (not (contains(dicKey, "sswell", 1)[0][1]) and not dicDateinfo["rswell"][2])): 
+                    if  ((contains(dicKey, "rswell", 2)[0]) and (contains(dicKey, "rswell", 2)[0]) and not dicDateinfo["rswell"][2]): 
                         dicKey = "rswell"
                         if checkVariables(dicKey, df.iat[rowindex+1, colIndex]):
                             
                             dicDateinfo[dicKey] = [rowindex, colIndex, True]
                             if maxRow < rowindex:
                                 maxRow = rowindex         
-                    elif((contains(dicKey, "sswell", 1)[0]) and not dicDateinfo["sswell"][2]):
+                    elif((contains(dicKey, "sswell", 2)[0]) and not dicDateinfo["sswell"][2]):
                         dicKey = "sswell"
                         if checkVariables(dicKey, df.iat[rowindex+1, colIndex]):
                             dicDateinfo[dicKey] = [rowindex, colIndex, True]
@@ -348,7 +348,7 @@ def findWantedColumn(dicDateinfo, df):
                       
                                 
             else:
-                #print('All columns found in row:', rowindex)
+                print('All columns found in row:', rowindex)
                 scanWantedCol(maxRow, df, dicDateinfo)
                 return
             
@@ -385,4 +385,72 @@ def findWantedColumn(dicDateinfo, df):
 #usersWants.collectUserInputs()
 
 
-print((contains("laingrswell", "rswell", 1))[0][0])
+
+# Loops through all the information in the dataset 
+for file in os.listdir(labResLocation):
+    file_path = os.path.join(labResLocation, file)
+    if os.path.isfile(file_path) and file_path.endswith(('.xls', '.xlsx', '.csv')) and not file.startswith('~$'):
+        try:
+            if file_path.endswith('.csv'):
+                df = pd.read_csv(file_path, header=0)
+            else:
+                df = pd.read_excel(file_path, header=0, engine='openpyxl')
+            
+            dataTupple = {wanted: [None, None, False] for wanted in usersWants.getWantSet()}
+            #df = df.drop(df.index)
+            findWantedColumn(dataTupple, df)
+        except Exception as e:
+            print(f"Error reading {file_path}: {e}")
+            continue
+    else:
+        print(f"Overlooking {file} due to invalid file.")
+        continue
+    
+    # Makes sure that all the collected information has the same length
+    lengths = [len(usersWants.getCollectedData()[col]) for col in usersWants.getWantSet()]
+    if len(set(lengths)) != 1:
+        print(f"Skipping {file} due to inconsistent data lengths.")
+        continue
+    
+    
+    # Output of the collected information
+    
+''''''''''
+for key, value in usersWants.getCollectedData().items():
+    print(key + ": " + str(value))
+'''''''''''
+outputDf = usersWants.swellAvg("rswell").swellAvg("sswell")
+new_data_df = pd.DataFrame(outputDf.getCollectedData())
+try:
+    if os.path.exists(outputLocation):
+        if os.path.getsize(outputLocation) > 0:  # Check if file is not empty
+            existing_df = pd.read_csv(outputLocation, header=0)
+            updated_df = pd.concat([existing_df, new_data_df], ignore_index=True)
+        else:
+            updated_df = new_data_df
+    else:
+        updated_df = new_data_df
+    updated_df.to_csv(outputLocation, index=False)
+except Exception as e:
+    print(f"Error writing to {outputLocation}: {e}")
+
+# Output for the mapped data for the legend
+#print("here")
+outputDf = usersWants.swellAvg("rswell").swellAvg("sswell")
+collectedData = {**outputDf.getCollectedData()}
+
+try:
+    new_data_df = pd.DataFrame(collectedData)
+    if os.path.exists(mappedoutputLocation):
+        if os.path.getsize(mappedoutputLocation) > 0:  # Check if file is not empty
+            existing_df = pd.read_csv(mappedoutputLocation, header=0)
+            updated_df = pd.concat([existing_df, new_data_df], ignore_index=True)
+        else:
+            updated_df = new_data_df
+    else:
+        updated_df = new_data_df
+    updated_df.to_csv(mappedoutputLocation, index=False)
+except Exception as e:
+    print(f"Error writing to {mappedoutputLocation}: {e}")
+
+print("Data added successfully.")
